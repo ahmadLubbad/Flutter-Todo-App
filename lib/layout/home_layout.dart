@@ -23,7 +23,7 @@ class _HomeLayoutState extends State<HomeLayout> {
 
   List<String> titels = [
     'NEW TASKS',
-    'DONE TASKS',
+    'FINISHED TASKS',
     'ARCHIVE TASKS',
   ];
 
