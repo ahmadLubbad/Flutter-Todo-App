@@ -20,8 +20,6 @@ class HomeLayout extends StatelessWidget
 
   var scaffoldKay = GlobalKey<ScaffoldState>();
   var formKay = GlobalKey<FormState>();
-  bool isBottomSheetShow = false;
-  IconData fabIcon=Icons.edit;
   var titleController=TextEditingController();
   var timeController=TextEditingController();
   var dateController=TextEditingController();
@@ -35,7 +33,11 @@ class HomeLayout extends StatelessWidget
     return BlocProvider(
       create: (BuildContext context)=>AppCubit()..createDatabase(),
       child: BlocConsumer<AppCubit,AppStates>(
-        listener: (BuildContext context,AppStates state){},
+        listener: (BuildContext context,AppStates state){
+          if(state is AppInsertDatabaseState){
+            Navigator.pop(context);
+          }
+        },
           builder: (BuildContext context,AppStates state){
 
           AppCubit cubit = AppCubit.get(context);
@@ -45,21 +47,28 @@ class HomeLayout extends StatelessWidget
               title: Text( cubit.titels[cubit.currentIndex]),
             ),
             body: ConditionalBuilder(
-              condition:true,
+              condition:state is! AppGetDatabaseLoadingState,
               builder: (context)=> cubit.screen[cubit.currentIndex],
               fallback: (context)=> Center(child: CircularProgressIndicator()),
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () {
-                if (isBottomSheetShow) {
+                if (cubit.isBottomSheetShow) {
                   if(formKay.currentState.validate())
                   {
+                    cubit.insertToDatabase
+                      (
+                        title: titleController.text,
+                        time: timeController.text,
+                        date: dateController.text
+                    );
+
                     // AppCubit.get(context).insertToDatabase(
                     //   title: titleController.text,
                     //   date: dateController.text,
                     //   time: timeController.text,
                     // ).then((value){
-                    //   AppCubit.get(context).getDataFromDatabase( AppCubit.get(context).database).then((value){
+                    //  getDataFromDatabase(database).then((value){
                     //     Navigator.pop(context);
                     //     // setState(() {
                     //     //   isBottomSheetShow = false;
@@ -151,18 +160,13 @@ class HomeLayout extends StatelessWidget
                   ),
                     elevation: 20.0,
                   ).closed.then((value){
-                    isBottomSheetShow = false;
-                    // setState(() {
-                    //   fabIcon=Icons.edit;
-                    // });
+                    cubit.ChangeBottomSheerState(isShow: false, icon: Icons.edit);
                   });
-                  isBottomSheetShow = true;
-                  // setState(() {
-                  //   fabIcon=Icons.add;
-                  // });
+                  cubit.ChangeBottomSheerState(isShow: true, icon: Icons.add);
+
                 }
               },
-              child: Icon(fabIcon),
+              child: Icon(cubit.fabIcon),
             ),
             bottomNavigationBar: BottomNavigationBar(
               type: BottomNavigationBarType.fixed,

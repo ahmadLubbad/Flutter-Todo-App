@@ -34,6 +34,7 @@ class AppCubit extends Cubit<AppStates>{
   Database database;
   List<Map>tasks=[];
 
+
   void createDatabase() async {
     database = await openDatabase(
       'todo.db',
@@ -71,17 +72,29 @@ class AppCubit extends Cubit<AppStates>{
     });
   }
 
-  Future insertToDatabase({
+  insertToDatabase({
     @required String title,
     @required String time,
     @required String date,
   })async {
-    return await database.transaction((txn) {
-      txn
-          .rawInsert(
-          'INSERT INTO tasks(title, date, time, status) VALUES ("$title","$date","$time","new")')
-          .then((value) {
+  await database.transaction((txn) {
+      txn.rawInsert
+        (
+          'INSERT INTO tasks(title, date, time, status) VALUES ("$title","$date","$time","new")'
+
+      ) .then((value) {
+        
         print('$value inserted successfully');
+        emit(AppInsertDatabaseState());
+
+        getDataFromDatabase(database).then((value){
+
+          tasks=value;
+          print(tasks);
+          emit(AppGetDatabaseState());
+
+        });
+
       }).catchError((error) {
         print('error when Insert New Record ${error.toString()}');
       });
@@ -90,8 +103,23 @@ class AppCubit extends Cubit<AppStates>{
   }
 
   Future<List <Map>> getDataFromDatabase(database)async{
+
+    emit(AppGetDatabaseLoadingState());
+
     return await database.rawQuery('SELECT * FROM tasks');
 
 
+  }
+
+  bool isBottomSheetShow = false;
+  IconData fabIcon=Icons.edit;
+
+  void ChangeBottomSheerState({
+    @required bool isShow,
+    @required IconData icon,
+}){
+    isBottomSheetShow=isShow;
+    fabIcon=icon;
+    emit(AppChangeBottomSheetBarState());
   }
 }
