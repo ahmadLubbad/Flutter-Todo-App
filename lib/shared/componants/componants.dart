@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:untitled/shared/cubit/cubit.dart';
 
 Widget dufaultButton({
   double width = double.infinity,
@@ -57,7 +58,7 @@ Widget defaultFormField({
       ),
     );
 
-Widget buildTasksItem(Map model)=>Padding(
+Widget buildTasksItem(Map model, context)=>Padding(
   padding: const EdgeInsets.all(20.0),
   child: Row(
     children: [
@@ -68,19 +69,50 @@ Widget buildTasksItem(Map model)=>Padding(
       SizedBox(
         width: 20.0,
       ),
-      Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '${model['title']}',
-            style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            '${model['date']}',
-            style: TextStyle(color: Colors.grey),
-          )
-        ],
+      Expanded(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '${model['title']}',
+              style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+            ),
+            Text(
+              '${model['date']}',
+              style: TextStyle(color: Colors.grey),
+            )
+          ],
+        ),
+      ),
+      SizedBox(
+        width: 20.0,
+      ),
+      IconButton(
+        onPressed: ()
+        {
+          AppCubit.get(context).updateData
+            (
+            status: 'done', id: model['id'],
+          );
+        },
+        icon:Icon(
+            Icons.check_box,
+          color: Colors.green,
+        ),
+      ),
+      IconButton(
+        onPressed: ()
+        {
+          AppCubit.get(context).updateData
+            (
+            status: 'archive', id: model['id'],
+          );
+        },
+        icon:Icon(
+            Icons.archive,
+          color: Colors.black45,
+        ),
       ),
     ],
   ),

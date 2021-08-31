@@ -32,7 +32,9 @@ class AppCubit extends Cubit<AppStates>{
 
 
   Database database;
-  List<Map>tasks=[];
+  List<Map>newTasks=[];
+  List<Map>doneTasks=[];
+  List<Map>archivedTasks=[];
 
 
   void createDatabase() async {
@@ -57,13 +59,7 @@ class AppCubit extends Cubit<AppStates>{
         });
       },
       onOpen: (database) {
-        getDataFromDatabase(database).then((value){
-
-          tasks=value;
-          print(tasks);
-          emit(AppGetDatabaseState());
-
-        });
+        getDataFromDatabase(database);
         print('Database opened');
       },
     ).then((value){
@@ -87,13 +83,7 @@ class AppCubit extends Cubit<AppStates>{
         print('$value inserted successfully');
         emit(AppInsertDatabaseState());
 
-        getDataFromDatabase(database).then((value){
-
-          tasks=value;
-          print(tasks);
-          emit(AppGetDatabaseState());
-
-        });
+        getDataFromDatabase(database);
 
       }).catchError((error) {
         print('error when Insert New Record ${error.toString()}');
@@ -102,13 +92,46 @@ class AppCubit extends Cubit<AppStates>{
     });
   }
 
-  Future<List <Map>> getDataFromDatabase(database)async{
+   getDataFromDatabase(database){
+
+    newTasks=[];
+    doneTasks=[];
+    archivedTasks=[];
 
     emit(AppGetDatabaseLoadingState());
 
-    return await database.rawQuery('SELECT * FROM tasks');
+     database.rawQuery('SELECT * FROM tasks').then((value){
+
+       value.forEach((element) {
+         if(element['status']=='new')
+           newTasks.add(element);
+         else if(element['status']=='done')
+           doneTasks.add(element);
+         else archivedTasks.add(element);
+       });
+       
+       emit(AppGetDatabaseState());
+
+     });
 
 
+  }
+
+  void updateData({
+  @required String status,
+  @required int id,
+})async
+  {
+
+     database.rawUpdate(
+        'UPDATE tasks SET status = ?,WHERE id = ?',
+
+        ['$status', id]//list of value
+    ).then((value){
+
+       getDataFromDatabase(database);
+      emit(AppUpdateDatabaseState());
+     });
   }
 
   bool isBottomSheetShow = false;
