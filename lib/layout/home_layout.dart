@@ -62,24 +62,6 @@ class HomeLayout extends StatelessWidget
                         time: timeController.text,
                         date: dateController.text
                     );
-
-                    // AppCubit.get(context).insertToDatabase(
-                    //   title: titleController.text,
-                    //   date: dateController.text,
-                    //   time: timeController.text,
-                    // ).then((value){
-                    //  getDataFromDatabase(database).then((value){
-                    //     Navigator.pop(context);
-                    //     // setState(() {
-                    //     //   isBottomSheetShow = false;
-                    //     //   fabIcon=Icons.edit;
-                    //     //   tasks=value;
-                    //     //   print('tasks from database : $tasks');
-                    //     // });
-                    //
-                    //   });
-                    //
-                    // });
                   }
                 } else {
                   scaffoldKay.currentState.showBottomSheet((context) => Container(

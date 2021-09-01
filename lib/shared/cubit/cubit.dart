@@ -37,8 +37,8 @@ class AppCubit extends Cubit<AppStates>{
   List<Map>archivedTasks=[];
 
 
-  void createDatabase() async {
-    database = await openDatabase(
+  void createDatabase()  {
+    openDatabase(
       'todo.db',
       version: 1,
       onCreate: (database, version) {
@@ -124,7 +124,7 @@ class AppCubit extends Cubit<AppStates>{
   {
 
      database.rawUpdate(
-        'UPDATE tasks SET status = ?,WHERE id = ?',
+        'UPDATE tasks SET status = ? WHERE id = ?',
 
         ['$status', id]//list of value
     ).then((value){
@@ -132,6 +132,20 @@ class AppCubit extends Cubit<AppStates>{
        getDataFromDatabase(database);
       emit(AppUpdateDatabaseState());
      });
+  }
+
+  void DeleteData({
+    @required int id,
+  })async
+  {
+
+    database.rawDelete(
+        'DELETE FROM tasks WHERE id = ?', [id]
+    ).then((value){
+
+      getDataFromDatabase(database);
+      emit(AppDeleteDatabaseState());
+    });
   }
 
   bool isBottomSheetShow = false;
